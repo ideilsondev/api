@@ -33,7 +33,8 @@ services:
   redis:
     image: redis:7
     container_name: redis
-    command: redis-server --requirepass $(cat /run/secrets/redis_password) --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: >
+      sh -c "redis-server --requirepass \"$$(cat /run/secrets/redis_password)\" --maxmemory 256mb --maxmemory-policy allkeys-lru"
     secrets:
       - redis_password
     volumes:
@@ -74,6 +75,7 @@ services:
       - N8N_LOG_OUTPUT=console
       - N8N_LOG_FILE_MAXSIZE=10
       - N8N_LOG_FILE_MAXCOUNT=3
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     secrets:
       - postgres_password
       - redis_password
