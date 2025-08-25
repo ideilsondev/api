@@ -8,8 +8,8 @@ N8N_CONTAINER := n8n
 TEST_SCRIPT := test_connection.sh
 
 # Alvo padrão
-.PHONY: all
-all: secrets up
+.PHONY: install
+install: secrets update-secrets up restart status test
 
 # Criar diretório e arquivos de segredos
 .PHONY: secrets
@@ -130,18 +130,19 @@ clean:
 .PHONY: help
 help:
 	@echo "Comandos disponíveis:"
-	@echo "  make secrets       - Criar arquivos de segredos"
-	@echo "  make update-secrets - Atualizar senhas nos arquivos de segredos"
-	@echo "  make up           - Subir containers PostgreSQL, Redis e n8n"
-	@echo "  make down         - Parar containers"
-	@echo "  make restart      - Reiniciar todos os containers"
-	@echo "  make restart-postgres - Reiniciar container PostgreSQL"
-	@echo "  make restart-redis - Reiniciar container Redis"
-	@echo "  make restart-n8n  - Reiniciar container n8n"
-	@echo "  make update-n8n   - Atualizar imagem do n8n"
-	@echo "  make update-redis - Atualizar imagem do Redis"
-	@echo "  make logs         - Exibir logs dos containers"
-	@echo "  make status       - Verificar status dos containers"
-	@echo "  make test         - Testar conexão com PostgreSQL, Redis e n8n"
-	@echo "  make clean        - Remover containers, volumes, imagens e segredos"
-	@echo "  make help         - Exibir esta ajuda"
+	@echo "	 make install			- Instalar containers"
+	@echo "  make secrets       	- Criar arquivos de segredos"
+	@echo "  make update-secrets 	- Atualizar senhas nos arquivos de segredos"
+	@echo "  make up           		- Subir containers PostgreSQL, Redis e n8n"
+	@echo "  make down         		- Parar containers"
+	@echo "  make restart      		- Reiniciar todos os containers"
+	@echo "  make restart-postgres 	- Reiniciar container PostgreSQL"
+	@echo "  make restart-redis 	- Reiniciar container Redis"
+	@echo "  make restart-n8n  		- Reiniciar container n8n"
+	@echo "  make update-n8n   		- Atualizar imagem do n8n"
+	@echo "  make update-redis 		- Atualizar imagem do Redis"
+	@echo "  make logs         		- Exibir logs dos containers"
+	@echo "  make status       		- Verificar status dos containers"
+	@echo "  make test         		- Testar conexão com PostgreSQL, Redis e n8n"
+	@echo "  make clean        		- Remover containers, volumes, imagens e segredos"
+	@echo "  make help         		- Exibir esta ajuda"
