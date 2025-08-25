@@ -25,25 +25,16 @@ secrets:
 update-secrets:
 	@echo "Atualizando senhas dos arquivos de segredos..."
 	@mkdir -p secrets
-	@read -s -p "Digite a nova senha para o PostgreSQL (Enter para gerar automaticamente): " pgpass; echo; \
-	 if [ -z "$$pgpass" ]; then \
-	   pgpass=$$(openssl rand -base64 12); \
-	   echo "Senha gerada automaticamente para PostgreSQL."; \
-	 fi; \
+	@pgpass=$$(openssl rand -base64 12); \
 	 echo "$$pgpass" > secrets/postgres_password.txt; \
 	 chmod 600 secrets/postgres_password.txt; \
-	 echo "Senha do PostgreSQL salva em secrets/postgres_password.txt"
-	@read -s -p "Digite a nova senha para o Redis (Enter para gerar automaticamente): " redispass; echo; \
-	 if [ -z "$$redispass" ]; then \
-	   redispass=$$(openssl rand -base64 12); \
-	   echo "Senha gerada automaticamente para Redis."; \
-	 fi; \
+	 echo "Senha gerada automaticamente para PostgreSQL e salva em secrets/postgres_password.txt"
+	@redispass=$$(openssl rand -base64 12); \
 	 echo "$$redispass" > secrets/redis_password.txt; \
 	 chmod 600 secrets/redis_password.txt; \
-	 echo "Senha do Redis salva em secrets/redis_password.txt"
+	 echo "Senha gerada automaticamente para Redis e salva em secrets/redis_password.txt"
 	@echo "Reiniciando containers para aplicar novas senhas..."
-	$(COMPOSE) restart
-	@echo "Senhas atualizadas e containers reiniciados. Execute 'make test' para verificar."
+	@echo "Senhas atualizadas. Execute 'make restart test' para verificar."
 
 # Subir os containers
 .PHONY: up

@@ -55,12 +55,12 @@ services:
         max-file: "3"
 
   n8n:
-    image: n8n:latest
+    image: n8nio/n8n:latest
     container_name: n8n
     environment:
-      - N8N_HOST=localhost
+      - N8N_HOST=n8n.icbox.com.br
       - N8N_PORT=5678
-      - N8N_PROTOCOL=http
+      - N8N_PROTOCOL=https
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
