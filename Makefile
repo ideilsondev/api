@@ -1,9 +1,10 @@
-# Makefile para gerenciar containers PostgreSQL e Redis
+# Makefile para gerenciar containers PostgreSQL, Redis e n8n
 
 # Variáveis
 COMPOSE := docker compose
 PSQL_CONTAINER := postgres
 REDIS_CONTAINER := redis
+N8N_CONTAINER := n8n
 TEST_SCRIPT := test_connection.sh
 
 # Alvo padrão
@@ -22,19 +23,56 @@ secrets:
 # Subir os containers
 .PHONY: up
 up:
-	@echo "Subindo containers PostgreSQL e Redis..."
+	@echo "Subindo containers PostgreSQL, Redis e n8n..."
 	$(COMPOSE) up -d
 
 # Parar os containers
 .PHONY: down
 down:
-	@echo "Parando containers PostgreSQL e Redis..."
+	@echo "Parando containers PostgreSQL, Redis e n8n..."
 	$(COMPOSE) down
 
-# Reiniciar os containers
+# Reiniciar todos os containers
 .PHONY: restart
 restart: down up
-	@echo "Containers reiniciados."
+	@echo "Todos os containers reiniciados."
+
+# Reiniciar container PostgreSQL
+.PHONY: restart-postgres
+restart-postgres:
+	@echo "Reiniciando container PostgreSQL..."
+	$(COMPOSE) restart postgres
+	@echo "Container PostgreSQL reiniciado."
+
+# Reiniciar container Redis
+.PHONY: restart-redis
+restart-redis:
+	@echo "Reiniciando container Redis..."
+	$(COMPOSE) restart redis
+	@echo "Container Redis reiniciado."
+
+# Reiniciar container n8n
+.PHONY: restart-n8n
+restart-n8n:
+	@echo "Reiniciando container n8n..."
+	$(COMPOSE) restart n8n
+	@echo "Container n8n reiniciado."
+
+# Atualizar imagem do n8n
+.PHONY: update-n8n
+update-n8n:
+	@echo "Atualizando imagem do n8n..."
+	$(COMPOSE) pull n8n
+	$(COMPOSE) up -d n8n
+	@echo "Imagem do n8n atualizada."
+
+# Atualizar imagem do Redis
+.PHONY: update-redis
+update-redis:
+	@echo "Atualizando imagem do Redis..."
+	$(COMPOSE) pull redis
+	$(COMPOSE) up -d redis
+	@echo "Imagem do Redis atualizada."
 
 # Verificar logs
 .PHONY: logs
@@ -46,12 +84,12 @@ logs:
 .PHONY: status
 status:
 	@echo "Verificando status dos containers..."
-	docker ps -f name=$(PSQL_CONTAINER) -f name=$(REDIS_CONTAINER)
+	docker ps -f name=$(PSQL_CONTAINER) -f name=$(REDIS_CONTAINER) -f name=$(N8N_CONTAINER)
 
 # Testar conexão com os serviços
 .PHONY: test
 test:
-	@echo "Testando conexões com PostgreSQL e Redis..."
+	@echo "Testando conexões com PostgreSQL, Redis e n8n..."
 	chmod +x $(TEST_SCRIPT)
 	./$(TEST_SCRIPT)
 
@@ -67,12 +105,17 @@ clean:
 .PHONY: help
 help:
 	@echo "Comandos disponíveis:"
-	@echo "  make secrets  - Criar arquivos de segredos"
-	@echo "  make up      - Subir containers PostgreSQL e Redis"
-	@echo "  make down    - Parar containers"
-	@echo "  make restart - Reiniciar containers"
-	@echo "  make logs    - Exibir logs dos containers"
-	@echo "  make status  - Verificar status dos containers"
-	@echo "  make test    - Testar conexão com PostgreSQL e Redis"
-	@echo "  make clean   - Remover containers, volumes, imagens e segredos"
-	@echo "  make help    - Exibir esta ajuda"
+	@echo "  make secrets       - Criar arquivos de segredos"
+	@echo "  make up           - Subir containers PostgreSQL, Redis e n8n"
+	@echo "  make down         - Parar containers"
+	@echo "  make restart      - Reiniciar todos os containers"
+	@echo "  make restart-postgres - Reiniciar container PostgreSQL"
+	@echo "  make restart-redis - Reiniciar container Redis"
+	@echo "  make restart-n8n  - Reiniciar container n8n"
+	@echo "  make update-n8n   - Atualizar imagem do n8n"
+	@echo "  make update-redis - Atualizar imagem do Redis"
+	@echo "  make logs         - Exibir logs dos containers"
+	@echo "  make status       - Verificar status dos containers"
+	@echo "  make test         - Testar conexão com PostgreSQL, Redis e n8n"
+	@echo "  make clean        - Remover containers, volumes, imagens e segredos"
+	@echo "  make help         - Exibir esta ajuda"

@@ -1,4 +1,4 @@
-# version: '3.8' #incompativel com versao do doker instalado
+version: '3.7'
 
 services:
   postgres:
@@ -54,6 +54,50 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  n8n:
+    image: n8n:latest
+    container_name: n8n
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=icbox_db
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD_FILE=/run/secrets/postgres_password
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_PASSWORD_FILE=/run/secrets/redis_password
+      - N8N_LOG_LEVEL=info
+      - N8N_LOG_OUTPUT=console
+      - N8N_LOG_FILE_MAXSIZE=10
+      - N8N_LOG_FILE_MAXCOUNT=3
+    secrets:
+      - postgres_password
+      - redis_password
+    volumes:
+      - n8n_data:/home/node/.n8n
+    ports:
+      - "127.0.0.1:5678:5678"
+    restart: unless-stopped
+    networks:
+      - local_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      - postgres
+      - redis
+
 secrets:
   postgres_password:
     file: ./secrets/postgres_password.txt
@@ -65,6 +109,8 @@ volumes:
     name: postgres_data
   redis_data:
     name: redis_data
+  n8n_data:
+    name: n8n_data
 
 networks:
   local_network:
