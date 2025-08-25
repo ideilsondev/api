@@ -1,13 +1,13 @@
-# version: '3.7'
+version: '3.8'
 
 services:
   postgres:
     image: postgres:16
     container_name: postgres
     environment:
-      POSTGRES_DB: icbox_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      - POSTGRES_DB=icbox_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_passw
     secrets:
       - postgres_password
     volumes:
@@ -17,38 +17,36 @@ services:
     restart: unless-stopped
     networks:
       - local_network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      -c max_connections=100 -c shared_buffers=${POSTGRES_SHARED_BUFFERS:-128MB} -c effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-384MB} -c work_mem=4MB -c maintenance_work_mem=64MB
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-    command: >
-      -c max_connections=100 -c shared_buffers=128MB -c effective_cache_size=384MB -c work_mem=4MB -c maintenance_work_mem=64MB
 
   redis:
     image: redis:7
     container_name: redis
     command: >
-      sh -c "redis-server --requirepass \"$$(cat /run/secrets/redis_password)\" --maxmemory 256mb --maxmemory-policy allkeys-lru"
+      sh -c "redis-server --requirepass redis_passw --maxmemory 256mb --maxmemory-policy allkeys-lru"
     secrets:
       - redis_password
     volumes:
       - redis_data:/data
-    ports:
-      - "127.0.0.1:6379:6379"
     restart: unless-stopped
     networks:
       - local_network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 256M
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     logging:
       driver: json-file
       options:
@@ -67,10 +65,10 @@ services:
       - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=icbox_db
       - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD_FILE=/run/secrets/postgres_password
+      - DB_POSTGRESDB_PASSWORD=postgres_passw
       - QUEUE_BULL_REDIS_HOST=redis
       - QUEUE_BULL_REDIS_PORT=6379
-      - QUEUE_BULL_REDIS_PASSWORD_FILE=/run/secrets/redis_password
+      - QUEUE_BULL_REDIS_PASSWORD=redis_passw
       - N8N_LOG_LEVEL=info
       - N8N_LOG_OUTPUT=console
       - N8N_LOG_FILE_MAXSIZE=10
@@ -86,19 +84,16 @@ services:
     restart: unless-stopped
     networks:
       - local_network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-    depends_on:
-      - postgres
-      - redis
 
 secrets:
   postgres_password:
