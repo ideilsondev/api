@@ -20,6 +20,31 @@ secrets:
 	@echo "supersecret_redis_2025!" > secrets/redis_password.txt
 	@chmod 600 secrets/*.txt
 
+# Atualizar senhas nos arquivos de segredos
+.PHONY: update-secrets
+update-secrets:
+	@echo "Atualizando senhas dos arquivos de segredos..."
+	@mkdir -p secrets
+	@read -s -p "Digite a nova senha para o PostgreSQL (Enter para gerar automaticamente): " pgpass; echo; \
+	 if [ -z "$$pgpass" ]; then \
+	   pgpass=$$(openssl rand -base64 12); \
+	   echo "Senha gerada automaticamente para PostgreSQL."; \
+	 fi; \
+	 echo "$$pgpass" > secrets/postgres_password.txt; \
+	 chmod 600 secrets/postgres_password.txt; \
+	 echo "Senha do PostgreSQL salva em secrets/postgres_password.txt"
+	@read -s -p "Digite a nova senha para o Redis (Enter para gerar automaticamente): " redispass; echo; \
+	 if [ -z "$$redispass" ]; then \
+	   redispass=$$(openssl rand -base64 12); \
+	   echo "Senha gerada automaticamente para Redis."; \
+	 fi; \
+	 echo "$$redispass" > secrets/redis_password.txt; \
+	 chmod 600 secrets/redis_password.txt; \
+	 echo "Senha do Redis salva em secrets/redis_password.txt"
+	@echo "Reiniciando containers para aplicar novas senhas..."
+	$(COMPOSE) restart
+	@echo "Senhas atualizadas e containers reiniciados. Execute 'make test' para verificar."
+
 # Subir os containers
 .PHONY: up
 up:
@@ -106,6 +131,7 @@ clean:
 help:
 	@echo "Comandos disponíveis:"
 	@echo "  make secrets       - Criar arquivos de segredos"
+	@echo "  make update-secrets - Atualizar senhas nos arquivos de segredos"
 	@echo "  make up           - Subir containers PostgreSQL, Redis e n8n"
 	@echo "  make down         - Parar containers"
 	@echo "  make restart      - Reiniciar todos os containers"
