@@ -55,9 +55,11 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     environment:
-      - N8N_HOST=n8n.icbox.com.br
+      - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
+      - N8N_TRUST_PROXY=true
+      - N8N_RUNNERS_ENABLED=true
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
@@ -72,10 +74,9 @@ services:
       - N8N_LOG_FILE_MAXSIZE=10
       - N8N_LOG_FILE_MAXCOUNT=3
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - N8N_RUNNERS_ENABLED=true
-      - N8N_TRUST_PROXY=true
       - N8N_SECURE_COOKIE=true
       - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_CORS_ALLOW_ORIGIN=https://n8n.icbox.com.br
     secrets:
       - postgres_password
       - redis_password
