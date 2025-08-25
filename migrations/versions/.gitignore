@@ -20,7 +20,7 @@ parts/
 sdist/
 *_data/
 secrets/*
-version/*.py
+*.py
 var/
 wheels/
 share/python-wheels/
