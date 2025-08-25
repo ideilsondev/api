@@ -1,7 +1,7 @@
 # Makefile para gerenciar containers PostgreSQL e Redis
 
 # Variáveis
-COMPOSE := docker-compose
+COMPOSE := docker compose
 PSQL_CONTAINER := postgres
 REDIS_CONTAINER := redis
 TEST_SCRIPT := test_connection.sh
